@@ -13,14 +13,18 @@ class PaintService:
         if not r: return None
         return {"room": r, "openings": openings.for_room(self._c, rid)}
     def settings(self): return settings.get_map(self._c)
+    def update_settings(self, changes):
+        changed = settings.update_values(self._c, changes)
+        return {"settings": settings.get_map(self._c), "changed": changed}
+    def settings_history(self, limit=50): return settings.list_history(self._c, limit)
     def history(self, limit=50): return runs.list_recent(self._c, limit)
     def estimate(self, room_id, persist, coats=None, coverage=None):
         detail = self.room_detail(room_id)
         if not detail: return None
         r = detail["room"]
         cov, ct = settings.coverage_coats(self._c)
-        cov = float(coverage or cov)
-        ct = int(coats or ct)
+        cov = float(coverage) if coverage is not None else cov
+        ct = int(coats) if coats is not None else ct
         ops = [{"w": o["w"], "h": o["h"]} for o in detail["openings"]]
         result = estimate_room(r["length"], r["width"], r["height"], ops, cov, ct)
         rid = runs.insert(self._c, "estimate", {"room_id": room_id, "coats": ct, "coverage": cov}, result, room_id) if persist else None

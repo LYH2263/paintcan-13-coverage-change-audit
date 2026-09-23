@@ -1,7 +1,13 @@
 <script setup>
-import { onMounted, ref } from 'vue'
-import { getJSON } from '../api'
-const s = ref({})
-onMounted(async () => { s.value = await getJSON('/api/settings') })
+import { ref } from 'vue'
+import DefaultsEditor from '../components/DefaultsEditor.vue'
+import ChangeHistory from '../components/ChangeHistory.vue'
+const history = ref(null)
 </script>
-<template><div class="page"><h1>遮盖力参数</h1><p>每升可刷 {{ s.coverage }} m² · 默认 {{ s.coats }} 遍</p></div></template>
+<template>
+  <div class="page">
+    <h1>遮盖力参数</h1>
+    <DefaultsEditor @saved="history.load()" />
+    <ChangeHistory ref="history" />
+  </div>
+</template>
