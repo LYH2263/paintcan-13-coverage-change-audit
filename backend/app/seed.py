@@ -8,6 +8,7 @@ def init_db():
     CREATE TABLE IF NOT EXISTS rooms(id INTEGER PRIMARY KEY, name TEXT, length REAL, width REAL, height REAL);
     CREATE TABLE IF NOT EXISTS openings(id INTEGER PRIMARY KEY, room_id INTEGER, kind TEXT, w REAL, h REAL);
     CREATE TABLE IF NOT EXISTS settings(key TEXT PRIMARY KEY, value TEXT);
+    CREATE TABLE IF NOT EXISTS settings_history(id INTEGER PRIMARY KEY, field TEXT, old_value TEXT, new_value TEXT, changed_at TEXT);
     CREATE TABLE IF NOT EXISTS calc_runs(id INTEGER PRIMARY KEY, kind TEXT, room_id INTEGER, input_json TEXT, result_json TEXT, created_at TEXT);
     """)
     if conn.execute("SELECT COUNT(*) c FROM rooms").fetchone()["c"] == 0:
@@ -22,6 +23,6 @@ def init_db():
         conn.execute("INSERT INTO settings(key,value) VALUES ('coats','2')")
         est = estimate_room(5, 4, 2.8, [{"w": 0.9, "h": 2.1}, {"w": 1.5, "h": 1.4}], 8, 2)
         conn.execute("INSERT INTO calc_runs(kind,room_id,input_json,result_json,created_at) VALUES ('estimate',1,?,?,datetime('now'))",
-            (json.dumps({"room_id": 1}), json.dumps(est)))
+            (json.dumps({"room_id": 1, "coverage": 8, "coats": 2}), json.dumps(est)))
         conn.commit()
     conn.close()
